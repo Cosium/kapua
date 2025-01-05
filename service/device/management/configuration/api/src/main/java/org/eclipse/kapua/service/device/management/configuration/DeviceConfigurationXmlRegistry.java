@@ -44,4 +44,8 @@ public class DeviceConfigurationXmlRegistry {
     public DeviceComponentConfiguration newComponentConfiguration() {
         return DEVICE_CONFIGURATION_FACTORY.newComponentConfigurationInstance(null);
     }
+
+    public DeviceComponentConfigurationFactories newComponentConfigurationFactories() {
+        return DEVICE_CONFIGURATION_FACTORY.newComponentConfigurationFactories();
+    }
 }

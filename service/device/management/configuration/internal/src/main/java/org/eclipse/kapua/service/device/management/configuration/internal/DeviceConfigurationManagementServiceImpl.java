@@ -26,6 +26,9 @@ import org.eclipse.kapua.service.device.management.configuration.DeviceComponent
 import org.eclipse.kapua.service.device.management.configuration.DeviceConfiguration;
 import org.eclipse.kapua.service.device.management.configuration.DeviceConfigurationFactory;
 import org.eclipse.kapua.service.device.management.configuration.DeviceConfigurationManagementService;
+import org.eclipse.kapua.service.device.management.configuration.message.internal.ConfigurationCreationRequestMessage;
+import org.eclipse.kapua.service.device.management.configuration.message.internal.ConfigurationCreationRequestPayload;
+import org.eclipse.kapua.service.device.management.configuration.message.internal.ConfigurationCreationResponseMessage;
 import org.eclipse.kapua.service.device.management.configuration.message.internal.ConfigurationRequestChannel;
 import org.eclipse.kapua.service.device.management.configuration.message.internal.ConfigurationRequestMessage;
 import org.eclipse.kapua.service.device.management.configuration.message.internal.ConfigurationRequestPayload;
@@ -109,6 +112,54 @@ public class DeviceConfigurationManagementServiceImpl extends AbstractDeviceMana
         //
         // Check response
         return checkResponseAcceptedOrThrowError(responseMessage, () -> responseMessage.getPayload().getDeviceConfigurations());
+    }
+
+    @Override
+    public void create(KapuaId scopeId, KapuaId deviceId, String componentFactoryId, String componentId, Long timeout) throws KapuaException {
+        // Argument Validation
+        ArgumentValidator.notNull(scopeId, SCOPE_ID);
+        ArgumentValidator.notNull(deviceId, DEVICE_ID);
+        ArgumentValidator.notEmptyOrNull(componentFactoryId, "componentFactoryId");
+        ArgumentValidator.notEmptyOrNull(componentId, "componentId");
+        // Check Access
+        AUTHORIZATION_SERVICE.checkPermission(PERMISSION_FACTORY.newPermission(DeviceManagementDomains.DEVICE_MANAGEMENT_DOMAIN, Actions.write, scopeId));
+        // Prepare the request
+        ConfigurationRequestChannel configurationRequestChannel = new ConfigurationRequestChannel();
+        configurationRequestChannel.setAppName(DeviceConfigurationAppProperties.APP_NAME);
+        configurationRequestChannel.setVersion(DeviceConfigurationAppProperties.APP_VERSION);
+        configurationRequestChannel.setMethod(KapuaMethod.CREATE);
+
+        ConfigurationCreationRequestPayload requestPayload = new ConfigurationCreationRequestPayload();
+        requestPayload.setComponentFactoryId(componentFactoryId);
+        requestPayload.setComponentId(componentId);
+
+        ConfigurationCreationRequestMessage requestMessage = new ConfigurationCreationRequestMessage();
+        requestMessage.setScopeId(scopeId);
+        requestMessage.setDeviceId(deviceId);
+        requestMessage.setCapturedOn(new Date());
+        requestMessage.setPayload(requestPayload);
+        requestMessage.setChannel(configurationRequestChannel);
+
+        // Build request
+        DeviceCallBuilder<ConfigurationRequestChannel, ConfigurationRequestPayload, ConfigurationRequestMessage, ConfigurationCreationResponseMessage> configurationDeviceCallBuilder =
+                DeviceCallBuilder
+                        .newBuilder()
+                        .withRequestMessage(requestMessage)
+                        .withTimeoutOrDefault(timeout);
+
+        // Do create
+        ConfigurationCreationResponseMessage responseMessage;
+        try {
+            responseMessage = configurationDeviceCallBuilder.send();
+        } catch (Exception e) {
+            LOG.error("Error while creating configuration using component factory {} and component id {} for Device {}. Error: {}", componentFactoryId, componentId, deviceId, e.getMessage(), e);
+            throw e;
+        }
+
+        // Create event
+        createDeviceEvent(scopeId, deviceId, requestMessage, responseMessage);
+        // Check response
+        checkResponseAcceptedOrThrowError(responseMessage);
     }
 
     @Override

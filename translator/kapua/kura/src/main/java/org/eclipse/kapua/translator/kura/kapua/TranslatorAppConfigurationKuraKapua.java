@@ -57,7 +57,7 @@ public class TranslatorAppConfigurationKuraKapua extends AbstractSimpleTranslato
     @Override
     protected ConfigurationResponseChannel translateChannel(KuraResponseChannel kuraResponseChannel) throws InvalidChannelException {
         try {
-            TranslatorKuraKapuaUtils.validateKuraResponseChannel(kuraResponseChannel, ConfigurationMetrics.APP_ID, ConfigurationMetrics.APP_VERSION);
+            TranslatorKuraKapuaUtils.validateKuraResponseChannel(kuraResponseChannel, ConfigurationMetrics.APP_ID, ConfigurationMetrics.APP_VERSION_1);
 
             return new ConfigurationResponseChannel();
         } catch (Exception e) {

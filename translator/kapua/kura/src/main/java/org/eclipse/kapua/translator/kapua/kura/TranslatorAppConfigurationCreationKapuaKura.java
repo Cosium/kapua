@@ -14,10 +14,8 @@
 package org.eclipse.kapua.translator.kapua.kura;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
-import javax.inject.Inject;
 import org.eclipse.kapua.service.device.call.kura.model.configuration.ConfigurationMetrics;
 import org.eclipse.kapua.service.device.call.message.kura.app.request.KuraRequestChannel;
 import org.eclipse.kapua.service.device.call.message.kura.app.request.KuraRequestMessage;
@@ -29,9 +27,6 @@ import org.eclipse.kapua.translator.exception.InvalidChannelException;
 import org.eclipse.kapua.translator.exception.InvalidPayloadException;
 
 public class TranslatorAppConfigurationCreationKapuaKura extends AbstractTranslatorKapuaKura<ConfigurationRequestChannel, ConfigurationCreationRequestPayload, ConfigurationCreationRequestMessage> {
-
-    @Inject
-    private ObjectMapper jsonMapper;
 
     @Override
     protected KuraRequestChannel translateChannel(ConfigurationRequestChannel kapuaChannel) throws InvalidChannelException {
@@ -51,7 +46,7 @@ public class TranslatorAppConfigurationCreationKapuaKura extends AbstractTransla
             RequestBody requestBody = new RequestBody();
             requestBody.configs.add(new Configs(kapuaPayload.getComponentFactoryId(), kapuaPayload.getComponentId()));
 
-            kuraRequestPayload.setBody(jsonMapper.writeValueAsBytes(requestBody));
+            kuraRequestPayload.setBody(getJsonMapper().writeValueAsBytes(requestBody));
 
             // Return Kura Payload
             return kuraRequestPayload;

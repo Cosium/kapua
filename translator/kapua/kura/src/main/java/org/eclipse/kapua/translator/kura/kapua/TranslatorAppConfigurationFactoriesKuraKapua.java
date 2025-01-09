@@ -15,14 +15,12 @@ package org.eclipse.kapua.translator.kura.kapua;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Set;
-import javax.inject.Inject;
 import org.eclipse.kapua.service.device.call.kura.model.configuration.ConfigurationMetrics;
 import org.eclipse.kapua.service.device.call.message.kura.app.response.KuraResponseChannel;
 import org.eclipse.kapua.service.device.call.message.kura.app.response.KuraResponsePayload;
 import org.eclipse.kapua.service.device.management.configuration.DeviceComponentConfigurationFactories;
-import org.eclipse.kapua.service.device.management.configuration.DeviceConfigurationFactory;
+import org.eclipse.kapua.service.device.management.configuration.internal.DeviceComponentConfigurationFactoriesImpl;
 import org.eclipse.kapua.service.device.management.configuration.message.internal.ConfigurationFactoriesResponseMessage;
 import org.eclipse.kapua.service.device.management.configuration.message.internal.ConfigurationFactoriesResponsePayload;
 import org.eclipse.kapua.service.device.management.configuration.message.internal.ConfigurationResponseChannel;
@@ -30,11 +28,6 @@ import org.eclipse.kapua.translator.exception.InvalidChannelException;
 import org.eclipse.kapua.translator.exception.InvalidPayloadException;
 
 public class TranslatorAppConfigurationFactoriesKuraKapua extends AbstractSimpleTranslatorResponseKuraKapua<ConfigurationResponseChannel, ConfigurationFactoriesResponsePayload, ConfigurationFactoriesResponseMessage> {
-
-    @Inject
-    private ObjectMapper jsonMapper;
-    @Inject
-    private DeviceConfigurationFactory deviceConfigurationFactory;
 
     public TranslatorAppConfigurationFactoriesKuraKapua() {
         super(ConfigurationFactoriesResponseMessage.class, ConfigurationFactoriesResponsePayload.class);
@@ -54,8 +47,8 @@ public class TranslatorAppConfigurationFactoriesKuraKapua extends AbstractSimple
     @Override
     protected ConfigurationFactoriesResponsePayload translatePayload(KuraResponsePayload kuraResponsePayload) throws InvalidPayloadException {
         try {
-            Representation representation = jsonMapper.readValue(kuraResponsePayload.getBody(), Representation.class);
-            DeviceComponentConfigurationFactories factories = deviceConfigurationFactory.newComponentConfigurationFactories();
+            Representation representation = getJsonMapper().readValue(kuraResponsePayload.getBody(), Representation.class);
+            DeviceComponentConfigurationFactories factories = new DeviceComponentConfigurationFactoriesImpl();
             representation.pids.stream().sorted().forEach(factories.getIds()::add);
             return new ConfigurationFactoriesResponsePayload(factories);
         } catch (Exception e) {

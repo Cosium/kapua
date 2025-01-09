@@ -30,12 +30,8 @@ import org.eclipse.kapua.translator.exception.InvalidPayloadException;
 
 public class TranslatorAppConfigurationCreationKapuaKura extends AbstractTranslatorKapuaKura<ConfigurationRequestChannel, ConfigurationCreationRequestPayload, ConfigurationCreationRequestMessage> {
 
-    private final ObjectMapper jsonMapper;
-
     @Inject
-    public TranslatorAppConfigurationCreationKapuaKura(ObjectMapper jsonMapper) {
-        this.jsonMapper = jsonMapper;
-    }
+    private ObjectMapper jsonMapper;
 
     @Override
     protected KuraRequestChannel translateChannel(ConfigurationRequestChannel kapuaChannel) throws InvalidChannelException {

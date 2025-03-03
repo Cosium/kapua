@@ -16,7 +16,7 @@
 
     <groupId>org.eclipse.kapua</groupId>
     <artifactId>kapua</artifactId>
-    <version>1.6.12.3.cosium</version>
+    <version>1.6.12.4.cosium</version>
 
     <name>kapua</name>
     <packaging>pom</packaging>

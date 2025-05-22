@@ -12,7 +12,9 @@
  *******************************************************************************/
 package org.eclipse.kapua.service.authentication.shiro.realm;
 
-
+import java.util.Date;
+import java.util.Map;
+import javax.validation.constraints.NotNull;
 import org.apache.shiro.ShiroException;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.DisabledAccountException;
@@ -35,10 +37,8 @@ import org.eclipse.kapua.service.authentication.shiro.exceptions.TemporaryLocked
 import org.eclipse.kapua.service.authentication.shiro.session.ShiroSessionKeys;
 import org.eclipse.kapua.service.user.User;
 import org.eclipse.kapua.service.user.UserStatus;
-
-import javax.validation.constraints.NotNull;
-import java.util.Date;
-import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Base {@code abstract} {@link AuthenticatingRealm} extension.
@@ -47,6 +47,7 @@ import java.util.Map;
  */
 public abstract class KapuaAuthenticatingRealm extends AuthenticatingRealm {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(KapuaAuthenticatingRealm.class);
     private static final KapuaLocator LOCATOR = KapuaLocator.getInstance();
 
     //
@@ -244,7 +245,7 @@ public abstract class KapuaAuthenticatingRealm extends AuthenticatingRealm {
         try {
             KapuaSecurityUtils.doPrivileged(() -> credentialService.update(credential));
         } catch (KapuaException kex) {
-            throw new ShiroException("Unexpected error while looking for the lockout policy", kex);
+            LOGGER.warn(kex.getMessage(), kex);
         }
     }
 
